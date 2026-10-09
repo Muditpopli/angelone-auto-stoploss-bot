@@ -1,0 +1,46 @@
+# config.example.yaml
+# ----------------------
+# Copy this file to config.yaml and edit as needed:
+#   cp config.example.yaml config.yaml
+#
+# config.yaml is gitignored -- only this example ships in the repo.
+# Any value you don't set here falls back to the tool's built-in
+# default. Precedence: a CLI flag (e.g. --stop-loss) always wins over
+# this file; this file always wins over the built-in default.
+#
+# Secrets (API key, client code, PIN, TOTP secret) do NOT go here --
+# see .env.example for those.
+
+# Loss threshold as a percentage of entry value. Must be negative; the
+# bot exits a leg once its mark-to-market loss reaches this.
+stop_loss_pct: -10.0
+
+# Gap (in the instrument's own price units, e.g. rupees) between the
+# STOPLOSS_LIMIT order's trigger price and its limit price -- gives the
+# sell order room to fill as price continues through the trigger. See
+# README.md "Design decisions" for the full reasoning.
+sl_limit_buffer: 0.5
+
+# Seconds between position checks in the polling entry point (main.py).
+poll_interval: 1.0
+
+# Seconds between safety-net checks in the event-driven entry point
+# (main_autosl.py) -- the backstop for a fill the order-update websocket
+# missed entirely.
+safety_net_interval: 10.0
+
+# How many extra points of loss past stop_loss_pct before the stuck-SL
+# watchdog (main_autosl.py) warns that a resting SL-LIMIT order likely
+# gapped through without filling.
+stuck_sl_margin_pct: 2.0
+
+# Which exchanges/segments main_autosl.py is allowed to act on. A BUY
+# fill (or an open position, for the safety net) on a segment NOT listed
+# here is left alone entirely -- e.g. drop MCX below if you only want
+# this running against index options.
+enabled_exchanges:
+  - NSE
+  - NFO
+  - BSE
+  - BFO
+  - MCX
